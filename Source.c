@@ -49,7 +49,10 @@ int main() {
     float probabilities[3] = { 0.0f, 0.0f, 0.0f };
     float scores[3] = { 1.0f, 0.0f, -1.0f }; // Use to accumulate scores for softmax
 
-    for (int iteration = 100; iteration--;)
+    float opp1Probabilities[3] = { 0.3f, 0.3f, 0.4f }; // Opponent's probabilities
+    float opp2Probabilities[3] = { 0.3f, 0.4f, 0.3f }; // Opponent's probabilities
+
+    for (int iteration = 2000; iteration--;)
     {
         int actionCount[3] = { 0, 0, 0 };
 
@@ -57,27 +60,31 @@ int main() {
         for (int i = numGames; i--;)
         {
             int action1 = Sample(probabilities);
-            int action2 = Sample(probabilities);
+            int action2;
+            if (iteration % 2)
+                action2 = Sample(opp1Probabilities);
+            else
+                action2 = Sample(opp2Probabilities);
             int outcome = outcomes[action1 * 3 + action2];
             actionCount[action1] += outcome;
         }
 
         // Adjust scores based on the outcomes
-        float learningRate = 0.01f / (float)(iteration + 1);
+        float learningRate = 0.1f / (float)(numGames);
         for (int i = 0; i < 3; i++) {
             scores[i] += learningRate * actionCount[i];
         }
 
         // Periodically print the probabilities
-        if (iteration % 1 == 0) {
+        if (iteration % 100 == 0) {
             printf("Rock: %.2f%%, Paper: %.2f%%, Scissors: %.2f%%\n",
                    probabilities[0] * 100,
                    probabilities[1] * 100,
                    probabilities[2] * 100);
-            printf("Rock: %.2f%%, Paper: %.2f%%, Scissors: %.2f%%\n\n",
-                actionCount[0] / (float)numGames,
-                actionCount[1] / (float)numGames,
-                actionCount[2] / (float)numGames);
+            // printf("Rock: %.2f%%, Paper: %.2f%%, Scissors: %.2f%%\n\n",
+            //     actionCount[0] / (float)numGames,
+            //     actionCount[1] / (float)numGames,
+            //     actionCount[2] / (float)numGames);
         }
     }
     
