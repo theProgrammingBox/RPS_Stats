@@ -49,10 +49,11 @@ int main() {
     float probabilities[3] = { 0.0f, 0.0f, 0.0f };
     float scores[3] = { 1.0f, 0.0f, -1.0f }; // Use to accumulate scores for softmax
 
-    float opp1Probabilities[3] = { 0.3f, 0.3f, 0.4f }; // Opponent's probabilities
-    float opp2Probabilities[3] = { 0.3f, 0.4f, 0.3f }; // Opponent's probabilities
+    float opp1Probabilities[3] = { 0.3f, 0.2f, 0.5f }; // Opponent's probabilities
+    float opp2Probabilities[3] = { 0.3f, 0.5f, 0.2f }; // Opponent's probabilities
+    float opp3Probabilities[3] = { 0.4f, 0.3f, 0.3f }; // Opponent's probabilities
 
-    for (int iteration = 2000; iteration--;)
+    for (int iteration = 4000; iteration--;)
     {
         int actionCount[3] = { 0, 0, 0 };
 
@@ -61,22 +62,29 @@ int main() {
         {
             int action1 = Sample(probabilities);
             int action2;
-            if (iteration % 2)
-                action2 = Sample(opp1Probabilities);
-            else
-                action2 = Sample(opp2Probabilities);
+            switch (iteration % 3) {
+                case 0:
+                    action2 = Sample(opp1Probabilities);
+                    break;
+                case 1:
+                    action2 = Sample(opp2Probabilities);
+                    break;
+                case 2:
+                    action2 = Sample(opp3Probabilities);
+                    break;
+            }
             int outcome = outcomes[action1 * 3 + action2];
             actionCount[action1] += outcome;
         }
 
         // Adjust scores based on the outcomes
-        float learningRate = 0.1f / (float)(numGames);
+        float learningRate = 1 / (float)(numGames);
         for (int i = 0; i < 3; i++) {
             scores[i] += learningRate * actionCount[i];
         }
 
         // Periodically print the probabilities
-        if (iteration % 100 == 0) {
+        if (iteration % 200 == 0) {
             printf("Rock: %.2f%%, Paper: %.2f%%, Scissors: %.2f%%\n",
                    probabilities[0] * 100,
                    probabilities[1] * 100,
